@@ -64,25 +64,16 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            @Override
+            @Override // SSL证书错误
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 Log.d("webview", String.valueOf(error));
                handler.proceed();
             }
-
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-//                System.out.print(111111);
-//                System.out.println(error);
-//                super.onReceivedError(view, request, error);
-            }
         });
-
-
+        // Webview设置
         WebSettings webSettings = webview.getSettings();
-
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setMediaPlaybackRequiresUserGesture(false);
+        webSettings.setJavaScriptEnabled(true); // 允许js执行
+        webSettings.setMediaPlaybackRequiresUserGesture(false); // 视频可自动播放
         webSettings.setLoadsImagesAutomatically(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
@@ -90,12 +81,11 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setMixedContentMode(MIXED_CONTENT_ALWAYS_ALLOW);
         webSettings.setAppCacheEnabled(true);
         webSettings.setAllowContentAccess(true);
-//        webSettings.setUserAgentString("desktop");
+//        webSettings.setUserAgentString("desktop"); // 可设置桌面环境还是移动端环境 影响排版布局
         webview.setBackgroundColor(2);
 
         // 按钮
         Button first_btn = (Button) findViewById(R.id.button);
-
         first_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,13 +113,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("webview", "接收到数据" + s);
                     }
                 });
-
-//                webview.loadUrl("https://www.baidu.com");
-//                webview.loadUrl("https://120.26.89.217:19980/cef/index.html");
             }
         });
     }
-
+    // AJAX请求
     public JSONArray getData(Context context, String url) {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
