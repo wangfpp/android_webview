@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
 
     @Override
     public void onListener(int level) {
-//        Log.d("power", "ddddddddddddddddddddd::" + String.valueOf(level));
         String jsfn = "javascript:batteryListener(" + String.valueOf(level) + ")";
         this.webView.loadUrl(String.format(jsfn));
     }
@@ -52,21 +51,18 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Context context = this;
 
         // 广播接收
         BatteryChangeReceiver batteryChangeReceiver = new BatteryChangeReceiver();
         Intent batteryIntent = context.registerReceiver(batteryChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-//        Log.d("battery", "1111111111111111:" + String.valueOf(level));
         batteryChangeReceiver.setMyListener(this);
 
 
 
         // webview
         WebView webview = (WebView) findViewById(R.id.webview);
-        this.webView = webview;
+        this.webView = webview; // 赋值webview
         // ChromeClient
         webview.setWebChromeClient(new WebChromeClient() {
             @Override

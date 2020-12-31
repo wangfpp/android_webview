@@ -16,7 +16,6 @@ window.onload = function() {
 *电池电量发生变化
 **/
 function batteryListener(level) {
-    console.log(111111, level);
     battery.innerHTML = `当前电量:${level}%`;
 }
 /**
