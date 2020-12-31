@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">测试原生Webview</string>
+    <string name="my_btn">点击以下</string>
+</resources>
