@@ -1,6 +1,7 @@
 window.onload = function() {
     let btn_node = document.querySelector("#btn"),
     back = document.querySelector("#back"),
+    battery = document.querySelector("#battery"),
     root= document.querySelector("#root");
     btn_node.onclick = function() {
         console.log("谁在Android上点击Webview的按钮了")
@@ -11,6 +12,13 @@ window.onload = function() {
     }
 }
 
+/**
+*电池电量发生变化
+**/
+function batteryListener(level) {
+    console.log(111111, level);
+    battery.innerHTML = `当前电量:${level}%`;
+}
 /**
 *监听Java的消息传递 驱动界面更新
 **/

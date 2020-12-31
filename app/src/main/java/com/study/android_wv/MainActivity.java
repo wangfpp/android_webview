@@ -3,9 +3,12 @@ package com.study.android_wv;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,7 +38,15 @@ import okhttp3.Response;
 
 import static android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BatteryChangeReceiver.MyListener {
+    WebView webView;
+
+    @Override
+    public void onListener(int level) {
+//        Log.d("power", "ddddddddddddddddddddd::" + String.valueOf(level));
+        String jsfn = "javascript:batteryListener(" + String.valueOf(level) + ")";
+        this.webView.loadUrl(String.format(jsfn));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +54,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Context context = this;
+
+        // 广播接收
+        BatteryChangeReceiver batteryChangeReceiver = new BatteryChangeReceiver();
+        Intent batteryIntent = context.registerReceiver(batteryChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+//        Log.d("battery", "1111111111111111:" + String.valueOf(level));
+        batteryChangeReceiver.setMyListener(this);
+
+
+
         // webview
         WebView webview = (WebView) findViewById(R.id.webview);
+        this.webView = webview;
         // ChromeClient
         webview.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -54,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         webview.loadUrl("file:///android_asset/web/index.html");
+//        String jsfn = "javascript:batteryListener(" + String.valueOf(level) + ")";
+
         // 注入java 函数
         webview.addJavascriptInterface(new Jsinterface(this), "js");
 
@@ -106,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).start();
                 // webview.loadUrl(String.format("javascript:jsfun('wangfpp', 20)")); // 无返回值
-                // 有返回值的
+                // 有返回值
                 webview.evaluateJavascript(String.format("javascript:jsfun('wangfpp', 20)"), new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String s) {
@@ -115,6 +139,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+
+
     }
     // AJAX请求
     public JSONArray getData(Context context, String url) {
@@ -139,4 +165,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return null;
     }
+
 }
