@@ -1,6 +1,7 @@
 package com.study.android_wv;
 
 import android.content.Context;
+import android.os.BatteryManager;
 import android.view.Gravity;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
@@ -21,7 +22,9 @@ public class Jsinterface {
     }
 
     @JavascriptInterface
-    public void getChatty() {
-
+    public int getBattery() {
+        BatteryManager manager = (BatteryManager)context.getSystemService(context.BATTERY_SERVICE);
+        int currentLevel = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        return currentLevel;
     }
 }

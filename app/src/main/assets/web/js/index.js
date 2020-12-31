@@ -6,6 +6,8 @@ window.onload = function() {
         console.log("谁在Android上点击Webview的按钮了")
         alert(111)
         js.sayName("wangfpp")
+        let battery = js.getBattery();
+        console.log(battery);
     }
 }
 
@@ -24,13 +26,14 @@ window.addEventListener("message", msg => {
         let { id, subject, class_name, teacher } = item;
         console.log(JSON.stringify(item));
         let cover_img_path = `http://172.16.1.110:6081/static/media/${id}/student_cover_img.png`
-        dom_str += `<div _data=${id}>
+        dom_str += `<div _data=${id} class="list">
             <img src="${cover_img_path}" onerror="loadImgErr(this)"/>
             <div>${class_name}-${subject}-${teacher}</div>
         </div>`
     })
     root.innerHTML = dom_str;
 }, false)
+
 
 /**
 *此函数是供给Java调用的
