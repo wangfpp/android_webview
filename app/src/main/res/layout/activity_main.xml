@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:text="@string/my_btn"
             android:visibility="visible"
+            android:textAllCaps="false"
             tools:visibility="visible" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

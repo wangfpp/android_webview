@@ -1,3 +1,16 @@
+import groovy.json.JsonSlurper
+
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("GMT+08:00"));
+}
+
+def getVersion() {
+    File versionFile = new File('version.json');
+    def jsonLoad = new JsonSlurper();
+    def versionJson = jsonLoad.parseText(versionFile.text);
+    return  versionJson["version"];
+}
+
 plugins {
     id 'com.android.application'
 }
@@ -11,7 +24,7 @@ android {
         minSdkVersion 29
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName getVersion();
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -25,6 +38,20 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    applicationVariants.all { variant ->
+        def buildName = variant.buildType.name
+        def createTime = releaseTime()
+        variant.outputs.each { output ->
+            // For each separate APK per architecture, set a unique version code as described here:
+            // https://developer.android.com/studio/build/configure-apk-splits.html
+            if (buildName == 'release') {
+                def outputFileName = "webview_study-${variant.versionName}_${createTime}.apk"
+                // println output.getPackageApplicationProvider()
+                output.outputFileName = outputFileName
+            }
+
+        }
     }
 }
 
