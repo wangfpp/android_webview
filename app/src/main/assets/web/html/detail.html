@@ -3,6 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <title>Document</title>
     <link rel="stylesheet" href="../css/detail.css">
+    <link rel="stylesheet" href="../css/comm.css">
 </head>
 <body>
 <video id="video" autoplay controls></video>
@@ -12,7 +13,12 @@
 <script>
     let { search } = window.location,
     video = document.querySelector("#video"),
+    back_btn = document.querySelector("#back"),
     video_url = search.split("=")[1];
     video.src = `${video_url}/teacher.mp4`;
 
+
+    back.onclick = _ => {
+        history.go(-1);
+    }
 </script>
