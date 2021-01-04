@@ -1,0 +1,13 @@
+button{
+    width: 70px;
+    height: 30px;
+    background: #2dabff;
+    border-radius: 5px;
+    outline: 0;
+    border: none;
+    transition: all 0.3s;
+    margin: 5px;
+}
+button::focus{
+    filter: hue-rotate(45deg)
+}

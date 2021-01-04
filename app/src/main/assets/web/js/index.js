@@ -1,6 +1,5 @@
 window.onload = function() {
     let btn_node = document.querySelector("#btn"),
-    back = document.querySelector("#back"),
     battery = document.querySelector("#battery"),
     root= document.querySelector("#root");
     btn_node.onclick = function() {
@@ -13,15 +12,29 @@ window.onload = function() {
 }
 
 /**
+* 华氏度转摄氏度
+**/
+function f2c(f) {
+    return (f - 32) / 1.8;
+}
+
+/**
 *电池电量发生变化
 **/
-function batteryListener(level) {
-    battery.innerHTML = `当前电量:${level}%`;
+function batteryListener(level_obj) {
+    try {
+        let { temp, level } = level_obj;
+        battery.innerHTML = `电量:${level}%, 电池温度${temp/10}℃`;
+    }catch(err) {
+        alert(err);
+    }
+
 }
 /**
 *监听Java的消息传递 驱动界面更新
 **/
 window.addEventListener("message", msg => {
+    console.log("Webview的msg监听", msg);
     let { data } = msg,
     dom_str = "";
     try{
@@ -31,15 +44,26 @@ window.addEventListener("message", msg => {
     }
     data.forEach(item => {
         let { id, subject, class_name, teacher } = item;
-        console.log(JSON.stringify(item));
         let cover_img_path = `http://172.16.1.110:6081/static/media/${id}/student_cover_img.png`
         dom_str += `<div _data=${id} class="list">
-            <img src="${cover_img_path}" onerror="loadImgErr(this)"/>
-            <div>${class_name}-${subject}-${teacher}</div>
+            <img src="${cover_img_path}" _data=${id}  onerror="loadImgErr(this)"/>
+            <div class="title" _data=${id}>班级:${class_name} 课程: ${subject} 教师:${teacher}</div>
         </div>`
     })
     root.innerHTML = dom_str;
+    let list = document.querySelectorAll(".list");
+    console.log(list);
+    list.forEach(li_item => {
+        li_item.onclick = e => {
+            let { target } = e,
+            id = target.getAttribute("_data");
+            console.log(e, target);
+            window.location.href  = `./html/detail.html?video_url=http://172.16.1.110:6081/static/media/${id}`;
+        }
+    })
 }, false)
+
+
 
 
 /**
