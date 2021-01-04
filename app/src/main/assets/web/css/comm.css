@@ -13,3 +13,8 @@ button{
 button::focus{
     filter: hue-rotate(45deg)
 }
+
+*{
+    padding: 0;
+    margin: 0;
+}

@@ -20,7 +20,13 @@ public class BatteryChangeReceiver extends BroadcastReceiver {
         if (action.equalsIgnoreCase(Intent.ACTION_BATTERY_CHANGED)) { // 电池发生变化
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1); // 电池电量
             int temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1); // 电池温度
-//            String charge = intent.getAction(BatteryManager.ACTION_CHARGING);
+            int charge = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            Boolean isCharge = false;
+            if(charge == BatteryManager.BATTERY_STATUS_CHARGING) { // 充电中...
+                isCharge = true;
+            } else if(charge == BatteryManager.BATTERY_STATUS_NOT_CHARGING) { // 未充电.
+                isCharge = false;
+            }
             JSONObject batterJson = new JSONObject();
             try {
                 batterJson.put("level", level);
@@ -29,6 +35,11 @@ public class BatteryChangeReceiver extends BroadcastReceiver {
             }
             try {
                 batterJson.put("temp", temp);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            try {
+                batterJson.put("isCharge", isCharge);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

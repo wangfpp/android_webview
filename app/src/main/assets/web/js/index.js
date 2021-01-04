@@ -23,8 +23,8 @@ function f2c(f) {
 **/
 function batteryListener(level_obj) {
     try {
-        let { temp, level } = level_obj;
-        battery.innerHTML = `电量:${level}%, 电池温度${temp/10}℃`;
+        let { temp, level, isCharge } = level_obj;
+        battery.innerHTML = `电量:${level}%, 温度${temp/10}℃, 充电:${isCharge}`;
     }catch(err) {
         alert(err);
     }

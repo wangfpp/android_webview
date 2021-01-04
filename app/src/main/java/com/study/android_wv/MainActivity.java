@@ -12,6 +12,8 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
@@ -131,8 +133,8 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
 
         // 加载Webview按钮
         load_wb_btn = (Button) findViewById(R.id.button);
-//        webview.loadUrl("file:///android_asset/web/index.html");
-        webview.loadUrl("https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=735940525973012&room=2345&type=local&screen=true&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/");
+        webview.loadUrl("file:///android_asset/web/index.html");
+//        webview.loadUrl("https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=735940525973012&room=2345&type=local&screen=true&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/");
         // 注入java 函数 js调用Java的函数
         webview.addJavascriptInterface(new Jsinterface(this, load_wb_btn), "js");
 
@@ -209,6 +211,12 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         }
         return null;
     }
-
-
+    
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+        if(webView.canGoBack()) {
+            webView.goBack();
+        }
+    }
 }
