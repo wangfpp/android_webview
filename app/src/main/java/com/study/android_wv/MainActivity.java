@@ -1,7 +1,9 @@
 package com.study.android_wv;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ComponentActivity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -35,6 +37,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -46,7 +52,10 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
     // 当前Activity的全局变量 this找不到时使用全局变量
     WebView webView;
     Button load_wb_btn;
+    Context context;
     int webViewLoadProgress = 0;
+    long backTime = 0;
+    BatteryChangeReceiver batteryChangeReceiver;
 
     @Override // 广播的事件监听 并调用JS的内部函数 render WebView HTML
     public void onListener(JSONObject batt_obj) {
@@ -54,25 +63,84 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         this.webView.loadUrl(String.format(jsfn));
     }
 
+
     // Android的生命周期函数 onCreate必须实现并且必须调用setContentView()
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Context context = this; // 赋值全局变量
+        context = this; // 赋值全局变量
+        registerMyReceiver();
 
+        loadWebview();
+
+        load_wb_btn = (Button) findViewById(R.id.button);
+        webView.loadUrl("file:///android_asset/web/index.html");
+//        webview.loadUrl("https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=735940525973012&room=2345&type=local&screen=true&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/");
+        // 注入java 函数 js调用Java的函数
+        webView.addJavascriptInterface(new Jsinterface(this, load_wb_btn), "js");
+
+        // 点击按钮 获取数据并给Webview传递消息postWebMessage
+        load_wb_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "渲染Webview列表", Toast.LENGTH_SHORT).show();
+//                load_wb_btn.setVisibility(View.GONE); // 隐藏不占空间 View.INVISIBLE隐藏占用空间位置
+                Log.d("webview", "加载webview");
+
+                webviewBack(null);
+                // webview.loadUrl(String.format("javascript:jsfun('wangfpp', 20)")); // 无返回值
+                // 有返回值
+                webView.evaluateJavascript(String.format("javascript:jsfun('wangfpp', 20)"), new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String s) {
+                        Log.d("webview", "接收到数据" + s);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        context.unregisterReceiver(batteryChangeReceiver);
+        webView.destroy();
+    }
+
+    public interface backCallback {
+        public void extiApp();
+    }
+
+    public void webviewBack(backCallback callback) {
+        if(webView.canGoBack()) {
+            webView.goBack();
+        } else {
+           if(callback != null) {
+               callback.extiApp();
+           }
+        }
+    }
+
+
+    /**
+     * 注册广播接受器
+     */
+    public void registerMyReceiver() {
         // 广播接收
-        BatteryChangeReceiver batteryChangeReceiver = new BatteryChangeReceiver();
+        batteryChangeReceiver = new BatteryChangeReceiver();
         Intent batteryIntent = context.registerReceiver(batteryChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         batteryChangeReceiver.setMyListener(this);
+    }
 
-
-
+    /**
+     * 加载Webview
+     **/
+    private void loadWebview() {
         // webview
-        WebView webview = (WebView) findViewById(R.id.webview);
-        this.webView = webview; // 赋值webview
+        webView = (WebView) findViewById(R.id.webview);
         // ChromeClient
-        webview.setWebChromeClient(new WebChromeClient() {
+        webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 String message = consoleMessage.message();
@@ -94,9 +162,9 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
             }
         });
 
+        webView.setWebViewClient(new WebViewClient() {
 
-        webview.setWebViewClient(new WebViewClient() {
-            
+            // 打开网页时不调用系统浏览器　而是直接在webview上显示
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url){
                 return false;
@@ -105,62 +173,28 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
             @Override // SSL证书错误
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 Log.d("webview", String.valueOf(error));
-               handler.proceed();
+                handler.proceed();
             }
-
-            
         });
 
         // webview调试模式
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webview.setWebContentsDebuggingEnabled(true);
+            webView.setWebContentsDebuggingEnabled(true);
         }
         // Webview设置
-        WebSettings webSettings = webview.getSettings();
+        WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true); // 允许js执行
 
 //        webSettings.setMediaPlaybackRequiresUserGesture(false); // 视频可自动播放
-        webSettings.setLoadsImagesAutomatically(true);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setAllowContentAccess(true);
+        webSettings.setLoadsImagesAutomatically(true); // 自动加载图片
+        webSettings.setAllowFileAccess(true); // 允许访问文件
+        webSettings.setAllowContentAccess(true); //
         webSettings.setDomStorageEnabled(true);
-        webSettings.setMixedContentMode(MIXED_CONTENT_ALWAYS_ALLOW);
+        webSettings.setMixedContentMode(MIXED_CONTENT_ALWAYS_ALLOW);//https http都可以加载
         webSettings.setAppCacheEnabled(true);
-        webSettings.setAllowContentAccess(true);
-        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE); // 缓存模式
 //        webSettings.setUserAgentString("desktop"); // 可设置桌面环境还是移动端环境 影响排版布局
-        webview.setBackgroundColor(2);
-
-        // 加载Webview按钮
-        load_wb_btn = (Button) findViewById(R.id.button);
-        webview.loadUrl("file:///android_asset/web/index.html");
-//        webview.loadUrl("https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=735940525973012&room=2345&type=local&screen=true&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/");
-        // 注入java 函数 js调用Java的函数
-        webview.addJavascriptInterface(new Jsinterface(this, load_wb_btn), "js");
-
-        // 点击按钮 获取数据并给Webview传递消息postWebMessage
-        load_wb_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "渲染Webview列表", Toast.LENGTH_SHORT).show();
-//                load_wb_btn.setVisibility(View.GONE); // 隐藏不占空间 View.INVISIBLE隐藏占用空间位置
-                Log.d("webview", "加载webview");
-                if(webView.canGoBack()) {
-                    webView.goBack();
-                }
-
-                // webview.loadUrl(String.format("javascript:jsfun('wangfpp', 20)")); // 无返回值
-                // 有返回值
-                webview.evaluateJavascript(String.format("javascript:jsfun('wangfpp', 20)"), new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String s) {
-                        Log.d("webview", "接收到数据" + s);
-                    }
-                });
-            }
-        });
-
-
+        webView.setBackgroundColor(2);
     }
 
     // 给webview发送消息
@@ -212,11 +246,32 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         return null;
     }
     
+    /**
+     * 监听物理返回键
+     */
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
-        if(webView.canGoBack()) {
-            webView.goBack();
-        }
+        backCallback _exit = new backCallback() {
+            @Override
+            public void extiApp() {
+                if (backTime == 0) {
+                    backTime = new Date().getTime();
+                    Toast.makeText(context, "点击两次退出APP", Toast.LENGTH_LONG).show();
+                } else {
+                    long currTime = new Date().getTime();
+                    if (currTime - backTime > 300) {
+                        backTime = 0;
+                        MainActivity.super.onBackPressed();
+                    }
+                }
+            }
+
+            public void exit() {
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.putExtra("exit", true);
+                context.startActivity(intent);
+            }
+        };
+        webviewBack(_exit);
     }
 }
