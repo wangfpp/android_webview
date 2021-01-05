@@ -96,4 +96,5 @@
   3. 调用JS函数
   ```
 
-  
+
+- RN的调试是只有一个client从Server获取数据　Android是一个完成的APK包
