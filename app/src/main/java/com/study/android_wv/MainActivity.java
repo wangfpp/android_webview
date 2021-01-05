@@ -147,11 +147,16 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         new Thread(new Runnable() {
             @Override
             public void run() {
-                JSONArray data_list = getData(context, "http://172.16.1.110:6081/api/subject/list");
                 WebMessage web_msg;
+                JSONArray doubanlist = doubanApi("https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=100&page_start=0");
+                if(doubanlist != null) {
+                    Log.i("douban", String.valueOf(doubanlist.length()));
+                }
+//                JSONArray data_list = getData(context, "http://172.16.1.110:6081/api/subject/list");
+
                 // 判断是否有数据
-                if (data_list != null && data_list.length() > 0) {
-                    web_msg = new WebMessage(String.valueOf(data_list));
+                if (doubanlist != null && doubanlist.length() > 0) {
+                    web_msg = new WebMessage(String.valueOf(doubanlist));
                 } else {
                     web_msg = new WebMessage(String.valueOf(new JSONArray()));
                 }
@@ -166,6 +171,24 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
                 }
             }
         }).start();
+    }
+
+    public JSONArray doubanApi(String doubanUrl) {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder().url(doubanUrl).build();
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            String res = response.body().string();
+            JSONObject jsonObject = new JSONObject(res);
+            JSONArray doubanlist = jsonObject.getJSONArray("subjects");
+            return doubanlist;
+        }catch (IOException | JSONException e) {
+            Log.e("request", String.valueOf(e));
+            Looper.prepare();
+            Toast.makeText(context, String.valueOf(e), Toast.LENGTH_LONG).show();
+            Looper.loop();
+            return  null;
+        }
     }
 
     /**

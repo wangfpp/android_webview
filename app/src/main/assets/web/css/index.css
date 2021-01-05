@@ -17,10 +17,11 @@ html,body{
 #root{
     width: 100%;
     height: calc(100% - 30px);
+    overflow-y: auto;
 }
 #root .list{
     width: 100%;
-    height: 200px;
+    height: 400px;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -30,6 +31,7 @@ html,body{
 #root .list img{
     width: 100%;
     height: auto;
+    max-height: 100%;
 }
 #root .list .title{
     width: 100%;

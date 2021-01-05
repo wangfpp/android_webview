@@ -44,7 +44,39 @@ function batteryListener(level_obj) {
 **/
 window.addEventListener("message", msg => {
     console.log("Webview的msg监听", msg);
-    let { data } = msg,
+    let { data } = msg;
+    renderDouban(data);
+}, false);
+
+
+function renderDouban(data) {
+    root.innerHTML = "";
+    dom_str = "";
+    try{
+        data = JSON.parse(data);
+    } catch(err) {
+        data = [];
+    }
+    data.forEach(item => {
+        let { id, cover, title, url, rate, playable, is_new } = item;
+        dom_str += `<div _data=${url} class="list">
+            <img src="${cover}" _data=${url}  onerror="loadImgErr(this)"/>
+            <div class="title" _data=${url}>片名:${title} 评分: ${rate}  在线播放:${playable}</div>
+        </div>`
+    })
+    root.innerHTML = dom_str;
+    let list = document.querySelectorAll(".list");
+    list.forEach(li_item => {
+        li_item.onclick = e => {
+            let { target } = e,
+            url = target.getAttribute("_data");
+            window.location.href  = url;
+        }
+    })
+}
+
+function renderLearning(data) {
+    root.innerHTML = "";
     dom_str = "";
     try{
         data = JSON.parse(data);
@@ -61,16 +93,14 @@ window.addEventListener("message", msg => {
     })
     root.innerHTML = dom_str;
     let list = document.querySelectorAll(".list");
-    console.log(list);
     list.forEach(li_item => {
         li_item.onclick = e => {
             let { target } = e,
             id = target.getAttribute("_data");
-            console.log(e, target);
             window.location.href  = `./html/detail.html?video_url=http://172.16.1.110:6081/static/media/${id}`;
         }
     })
-}, false)
+}
 
 
 
