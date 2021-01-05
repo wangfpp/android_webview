@@ -108,8 +108,11 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         webView.destroy();
     }
 
+    /**
+     * 定义一个接口　由具体对象实现其方法
+     */
     public interface backCallback {
-        public void extiApp();
+        void extiApp();
     }
 
     public void webviewBack(backCallback callback) {
@@ -121,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
            }
         }
     }
-
 
     /**
      * 注册广播接受器
@@ -137,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
      * 加载Webview
      **/
     private void loadWebview() {
-        // webview
         webView = (WebView) findViewById(R.id.webview);
         // ChromeClient
         webView.setWebChromeClient(new WebChromeClient() {
@@ -163,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         });
 
         webView.setWebViewClient(new WebViewClient() {
-
             // 打开网页时不调用系统浏览器　而是直接在webview上显示
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url){
@@ -223,8 +223,12 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         }).start();
     }
 
-
-    // AJAX请求
+    /**
+     *　Ajax请求数据
+     * @param context
+     * @param url 请求的url
+     * @return　JSONArray
+     */
     public JSONArray getData(Context context, String url) {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
@@ -245,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         }
         return null;
     }
-    
+
     /**
      * 监听物理返回键
      */
@@ -264,12 +268,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
                         MainActivity.super.onBackPressed();
                     }
                 }
-            }
-
-            public void exit() {
-                Intent intent = new Intent(context, MainActivity.class);
-                intent.putExtra("exit", true);
-                context.startActivity(intent);
             }
         };
         webviewBack(_exit);
