@@ -52,7 +52,9 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
     Context context;
     int webViewLoadProgress = 0;
     long backTime = 0;
-    String janusUrl = "https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=46740852&room=2345&type=remote&screen=false&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/";
+    String janusUrl = "https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=467408521&room=2345&type=local&role=0&screen=false&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/";
+//    String janusUrl = "https://120.26.89.217:19980/testrtc/index.html";
+//    String janusUrl = "https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&audio=%E9%BA%A6%E5%85%8B%E9%A3%8E&video=%E6%91%84%E5%83%8F%E5%A4%B4#/test_rtc";
     BatteryChangeReceiver batteryChangeReceiver;
 
     @Override // 广播的事件监听 并调用JS的内部函数 render WebView HTML
@@ -75,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         load_wb_btn = (Button) findViewById(R.id.button);
         progressLayout = (RelativeLayout) findViewById(R.id.progress);
 //        webView.loadUrl("https://www.baidu.com");
-//        webView.loadUrl("file:///android_asset/web/index.html");
-        webView.loadUrl(janusUrl);
+        webView.loadUrl("file:///android_asset/web/index.html");
+//        webView.loadUrl(janusUrl);
         // 注入java 函数 js调用Java的函数
         webView.addJavascriptInterface(new Jsinterface(this, load_wb_btn), "js");
 
