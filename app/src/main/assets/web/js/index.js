@@ -2,12 +2,16 @@ window.onload = function() {
     let btn_node = document.querySelector("#btn"),
     battery = document.querySelector("#battery"),
     root= document.querySelector("#root");
+    let battery_ = js.getBattery();
+    try{
+        battery_ = JSON.parse(battery_);
+        batteryListener(battery_);
+    }catch(err) {
+        console.error(err);
+    }
     btn_node.onclick = function() {
-        console.log("谁在Android上点击Webview的按钮了")
-        alert(111)
-        js.sayName("wangfpp")
-        let battery = js.getBattery();
-        console.log(battery);
+        console.log("谁在Android上点击Webview的按钮了");
+        js.sayName("wangfpp");
     }
 }
 
@@ -24,7 +28,12 @@ function f2c(f) {
 function batteryListener(level_obj) {
     try {
         let { temp, level, isCharge } = level_obj;
-        battery.innerHTML = `电量:${level}%, 温度${temp/10}℃, 充电:${isCharge}`;
+        if (temp) {
+            battery.innerHTML = `电量:${level}%, 温度${temp/10}℃, 充电:${isCharge}`;
+        } else {
+            battery.innerHTML = `电量:${level}%, 充电:${isCharge}`;
+        }
+
     }catch(err) {
         alert(err);
     }

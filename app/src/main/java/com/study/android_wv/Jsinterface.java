@@ -15,6 +15,9 @@ import android.widget.Toast;
 
 import androidx.transition.Visibility;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Jsinterface {
     public Context context;
     public Button load_btn;
@@ -34,10 +37,31 @@ public class Jsinterface {
     }
 
     @JavascriptInterface
-    public int getBattery() {
+    public String getName() {
+        return  "wangfpp";
+    }
+
+    @JavascriptInterface
+    public String getBattery() {
         BatteryManager manager = (BatteryManager)context.getSystemService(context.BATTERY_SERVICE);
-        int currentLevel = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        return currentLevel;
+        int level = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        boolean isCharge = false;
+        if(manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATUS) == BatteryManager.BATTERY_STATUS_CHARGING) {
+            isCharge = true;
+        }
+        JSONObject batterObj = new JSONObject();
+        try {
+            batterObj.put("level", level);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            batterObj.put("isCharge", isCharge);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.i("battery", String.valueOf(batterObj));
+        return String.valueOf(batterObj);
     }
 
     // 动态显示加载按钮
@@ -59,14 +83,6 @@ public class Jsinterface {
 //        ).start();
         Log.d("webview", "按钮当前是否显示了:" + String.valueOf(this.load_btn.getVisibility() == View.VISIBLE));
 
-    }
-
-    @JavascriptInterface
-    public void listenBattery() {
-//        BatteryChangeReceiver batteryChangeReceiver = new BatteryChangeReceiver();
-//        Intent bateryIntent = context.registerReceiver(batteryChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-//        int level = bateryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-//        Log.d("batery", String.valueOf(level));
     }
 
 }

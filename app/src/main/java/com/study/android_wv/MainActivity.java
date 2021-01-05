@@ -13,6 +13,7 @@ import android.net.http.SslError;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -115,6 +116,10 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         void extiApp();
     }
 
+    /**
+     * Webview是否可返回　以及退出APP的事件处理
+     * @param callback　回调函数
+     */
     public void webviewBack(backCallback callback) {
         if(webView.canGoBack()) {
             webView.goBack();
@@ -133,6 +138,64 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         batteryChangeReceiver = new BatteryChangeReceiver();
         Intent batteryIntent = context.registerReceiver(batteryChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         batteryChangeReceiver.setMyListener(this);
+    }
+
+
+
+    // 给webview发送消息
+    public void sendMsg(Context context, WebView webView) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONArray data_list = getData(context, "http://172.16.1.110:6081/api/subject/list");
+                WebMessage web_msg;
+                // 判断是否有数据
+                if (data_list != null && data_list.length() > 0) {
+                    web_msg = new WebMessage(String.valueOf(data_list));
+                } else {
+                    web_msg = new WebMessage(String.valueOf(new JSONArray()));
+                }
+                Log.i("webview", "给webview发送数据:" + String.valueOf(web_msg));
+                if (webView != null) {
+                    webView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.postWebMessage(web_msg, Uri.EMPTY);
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    /**
+     *　Ajax请求数据
+     * @param context
+     * @param url 请求的url
+     * @return　JSONArray
+     */
+    public JSONArray getData(Context context, String url) {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder().url(url).build();
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            String s = response.body().string(); // 获取到的JSON数据
+            JSONObject jsonObject = new JSONObject(s);
+            int code = jsonObject.getInt("rc");
+            JSONArray subject_list = jsonObject.getJSONArray("data");
+            if (code == 0) {
+                return jsonObject.getJSONArray("data");
+            } else {
+                String msg = jsonObject.getString("msg");
+                Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+            }
+        } catch (IOException | JSONException e) {
+            Log.d("request", String.valueOf(e));
+            Looper.prepare();
+            Toast.makeText(context, String.valueOf(e), Toast.LENGTH_LONG).show();
+            Looper.loop();
+        }
+        return null;
     }
 
     /**
@@ -195,59 +258,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE); // 缓存模式
 //        webSettings.setUserAgentString("desktop"); // 可设置桌面环境还是移动端环境 影响排版布局
         webView.setBackgroundColor(2);
-    }
-
-    // 给webview发送消息
-    public void sendMsg(Context context, WebView webView) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                JSONArray data_list = getData(context, "http://172.16.1.110:6081/api/subject/list");
-                WebMessage web_msg;
-                // 判断是否有数据
-                if (data_list != null && data_list.length() > 0) {
-                    web_msg = new WebMessage(String.valueOf(data_list));
-                } else {
-                    web_msg = new WebMessage(String.valueOf(new JSONArray()));
-                }
-                Log.i("webview", "给webview发送数据:" + String.valueOf(web_msg));
-                if (webView != null) {
-                    webView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            webView.postWebMessage(web_msg, Uri.EMPTY);
-                        }
-                    });
-                }
-            }
-        }).start();
-    }
-
-    /**
-     *　Ajax请求数据
-     * @param context
-     * @param url 请求的url
-     * @return　JSONArray
-     */
-    public JSONArray getData(Context context, String url) {
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().url(url).build();
-        try {
-            Response response = okHttpClient.newCall(request).execute();
-            String s = response.body().string(); // 获取到的JSON数据
-            JSONObject jsonObject = new JSONObject(s);
-            int code = jsonObject.getInt("rc");
-            JSONArray subject_list = jsonObject.getJSONArray("data");
-            if (code == 0) {
-                return jsonObject.getJSONArray("data");
-            } else {
-                String msg = jsonObject.getString("msg");
-                Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-            }
-        } catch (IOException | JSONException e) {
-            Log.d("request", String.valueOf(e));
-        }
-        return null;
     }
 
     /**
