@@ -1,5 +1,15 @@
 ### Webview
 
+- Webview就是Chrome内核　就有语法兼容性问题
+
+  `````javascript
+  // 解决方法
+  1. 升级Webview版本
+  2. 使用低版本的语法
+  `````
+
+  
+
 - 加载远程HTTP[s] 
 
   - Android的网络请求权限
