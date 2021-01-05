@@ -78,8 +78,16 @@
     // 重新实现consoleMessage可以自定义cosole输出
     ```
 
-- WebChromeClient w
+- setWebChromeClient和setWebViewClient
 
+  ```xml
+  setWebChromeClient 窗口管理　alert fileSelect  相当于是浏览器
+   
+  setWebViewClient 请求管理 SSL_ERROR url_loading等　相当于是页面
+  ```
+
+  
+  
 - 在Webview调用原生方法 比如获取电池电量
 
   ```

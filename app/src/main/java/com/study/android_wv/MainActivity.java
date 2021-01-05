@@ -1,10 +1,13 @@
 package com.study.android_wv;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -13,6 +16,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
+import android.webkit.PermissionRequest;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -30,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.Permissions;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -47,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
     Context context;
     int webViewLoadProgress = 0;
     long backTime = 0;
+    String janusUrl = "https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=46740852&room=2345&type=remote&screen=false&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/";
     BatteryChangeReceiver batteryChangeReceiver;
 
     @Override // 广播的事件监听 并调用JS的内部函数 render WebView HTML
@@ -63,14 +69,14 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         setContentView(R.layout.activity_main);
         context = this; // 赋值全局变量
         registerMyReceiver(); // 注册广播
-
-        loadWebview(); // 加载webview
+        requestPermission();
+//        loadWebview(); // 加载webview
 
         load_wb_btn = (Button) findViewById(R.id.button);
         progressLayout = (RelativeLayout) findViewById(R.id.progress);
-        webView.loadUrl("https://www.baidu.com");
+//        webView.loadUrl("https://www.baidu.com");
 //        webView.loadUrl("file:///android_asset/web/index.html");
-//        webview.loadUrl("https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=735940525973012&room=2345&type=local&screen=true&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/");
+        webView.loadUrl(janusUrl);
         // 注入java 函数 js调用Java的函数
         webView.addJavascriptInterface(new Jsinterface(this, load_wb_btn), "js");
 
@@ -93,6 +99,14 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
                 });
             }
         });
+    }
+
+    void requestPermission() {
+        if(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, 0);
+        }
+        this.loadWebview();
     }
 
     @Override
@@ -142,9 +156,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
             public void run() {
                 WebMessage web_msg;
                 JSONArray doubanlist = doubanApi("https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=100&page_start=0");
-                if(doubanlist != null) {
-                    Log.i("douban", String.valueOf(doubanlist.length()));
-                }
                 // 判断是否有数据
                 if (doubanlist != null && doubanlist.length() > 0) {
                     web_msg = new WebMessage(String.valueOf(doubanlist));
@@ -225,11 +236,22 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         // ChromeClient
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
+            public void onPermissionRequest(PermissionRequest request) {
+//                super.onPermissionRequest(request);
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        request.grant(request.getResources());
+                    }
+                });
+            }
+
+            @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 String message = consoleMessage.message();
                 int lineNum = consoleMessage.lineNumber();
                 String souceId = consoleMessage.sourceId();
-                Log.d("webview", "打印信息:" + message + "--行数: "+ String.valueOf(lineNum) + "文件:" + souceId);
+                Log.d("webview", "打印信息:" + String.valueOf(message) + "--行数: "+ String.valueOf(lineNum) + "文件:" + souceId);
                 return super.onConsoleMessage(consoleMessage);
             }
 
@@ -285,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true); // 允许js执行
 
-//        webSettings.setMediaPlaybackRequiresUserGesture(false); // 视频可自动播放
+        webSettings.setMediaPlaybackRequiresUserGesture(false); // 视频可自动播放
         webSettings.setLoadsImagesAutomatically(true); // 自动加载图片
         webSettings.setAllowFileAccess(true); // 允许访问文件
         webSettings.setAllowContentAccess(true); //

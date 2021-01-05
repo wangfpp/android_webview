@@ -23,11 +23,11 @@ public class Jsinterface {
     public Button load_btn;
 
     public Jsinterface(Context context, Button load_btn) {
-        Log.e("weview", "ddddddddddddd:" + String.valueOf(load_btn));
         this.context = context;
         this.load_btn = load_btn;
     }
 
+    // 这里的写法和RN的JS接口很相似　@ReactMethod
     @JavascriptInterface
     public void sayName(String name) {
         String myname = "my name is " + name;
@@ -61,6 +61,7 @@ public class Jsinterface {
             e.printStackTrace();
         }
         Log.i("battery", String.valueOf(batterObj));
+        // 这里和PostMessage一样只能传递String
         return String.valueOf(batterObj);
     }
 
