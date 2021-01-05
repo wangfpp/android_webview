@@ -1,32 +1,22 @@
 package com.study.android_wv;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ComponentActivity;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.net.http.SslError;
-import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.Layout;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
-import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebMessage;
-import android.webkit.WebMessagePort;
-import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -40,10 +30,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -74,13 +62,14 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this; // 赋值全局变量
-        registerMyReceiver();
+        registerMyReceiver(); // 注册广播
 
-        loadWebview();
+        loadWebview(); // 加载webview
 
         load_wb_btn = (Button) findViewById(R.id.button);
         progressLayout = (RelativeLayout) findViewById(R.id.progress);
-        webView.loadUrl("file:///android_asset/web/index.html");
+        webView.loadUrl("https://www.baidu.com");
+//        webView.loadUrl("file:///android_asset/web/index.html");
 //        webview.loadUrl("https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=735940525973012&room=2345&type=local&screen=true&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/");
         // 注入java 函数 js调用Java的函数
         webView.addJavascriptInterface(new Jsinterface(this, load_wb_btn), "js");
@@ -156,8 +145,6 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
                 if(doubanlist != null) {
                     Log.i("douban", String.valueOf(doubanlist.length()));
                 }
-//                JSONArray data_list = getData(context, "http://172.16.1.110:6081/api/subject/list");
-
                 // 判断是否有数据
                 if (doubanlist != null && doubanlist.length() > 0) {
                     web_msg = new WebMessage(String.valueOf(doubanlist));
@@ -177,6 +164,11 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         }).start();
     }
 
+    /**
+     * 请求豆瓣数据
+     * @param doubanUrl
+     * @return JSONArray
+     */
     public JSONArray doubanApi(String doubanUrl) {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().url(doubanUrl).build();
@@ -258,10 +250,24 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         });
 
         webView.setWebViewClient(new WebViewClient() {
-            // 打开网页时不调用系统浏览器　而是直接在webview上显示
+            // 打开网页时不调用系统浏览器　而是直接在webview上显示 true拦截 false　webview加载url
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url){
-                return false;
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request){
+                String url = String.valueOf(request.getUrl());
+                String[] url_list = url.split("://");
+                String scheme = url_list[0];
+                JSONArray schemes = new JSONArray();
+                schemes.put("https");
+                schemes.put("http");
+                schemes.put("file");
+                return  true;
+//                if(Arrays.asList(schemes).contains(scheme)) {
+//                    return false;
+//                } else {
+//                    Log.d("webview", "看看是什么URL:" + scheme + url_list[1]);
+////                    https://boxer.baidu.com/scheme?source=1023751x&channel=1023764q&p1=1023764q&p2=844b&p3=1023751x&p4={%22browserid%22:%2224%22,%22baiduid%22:%228CD66C1D09B409090F31019DFB436247%22}&tokenData=%257B%2522activity_id%2522%253A227%252C%2522url%2522%253A%2522f157imj5AtTRFONWqSgD8Rj1Qyrjs0B2%252Fpages%252Fhfiveservicesearchmiddlepage%252Findex%252F%253Ftype%253D1%2526province_name%253D%2525E5%25258C%252597%2525E4%2525BA%2525AC%2525E5%2525B8%252582%2526rfrom%253D1023751x%2526rchannel%253D1023764q%2526ivk_p2%253D844b%2522%257D
+//                    return true;
+//                }
             }
 
             @Override // SSL证书错误

@@ -1,11 +1,27 @@
 ### Webview
 
-- Webview就是Chrome内核　就有语法兼容性问题
+- Webview就是Chrome内核　就有语法兼容性/功能性问题
 
   `````javascript
   // 解决方法
   1. 升级Webview版本
-  2. 使用低版本的语法
+  	https://cloud.tencent.com/developer/article/1388497
+  2. 降低低版本的语法
+  	2.1 使用低版本语法
+      2.2 编译高版本语法
+      "browserslist": {
+          "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all",
+            "Chrome > 50"
+          ],
+          "development": [
+            "last 3 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+          ]
+        },
   `````
 
   
@@ -61,6 +77,8 @@
     // 实例化WebChromeClient就可使alert显示
     // 重新实现consoleMessage可以自定义cosole输出
     ```
+
+- WebChromeClient w
 
 - 在Webview调用原生方法 比如获取电池电量
 
