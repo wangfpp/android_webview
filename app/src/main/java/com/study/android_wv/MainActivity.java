@@ -14,6 +14,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.text.Layout;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -31,6 +32,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
     // 当前Activity的全局变量 this找不到时使用全局变量
     WebView webView;
     Button load_wb_btn;
+    RelativeLayout progressLayout;
     Context context;
     int webViewLoadProgress = 0;
     long backTime = 0;
@@ -76,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
         loadWebview();
 
         load_wb_btn = (Button) findViewById(R.id.button);
+        progressLayout = (RelativeLayout) findViewById(R.id.progress);
         webView.loadUrl("file:///android_asset/web/index.html");
 //        webview.loadUrl("https://120.26.89.217:19980/cef/index.html?local_ip=172.16.1.110&local_port=8899&janus_port=4145&janus_id=735940525973012&room=2345&type=local&screen=true&display=%E4%B8%AD%E5%BA%861%E7%8F%AD&ice_servers=[{%22urls%22:%22turn:120.26.89.217:3478%22,%22username%22:%22inter_user%22,%22credential%22:%22power_turn%22}]#/");
         // 注入java 函数 js调用Java的函数
@@ -240,8 +244,12 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
             @Override
             public void onProgressChanged(WebView webView, int progress) {
                 Log.i("webview", "加载进度:" + String.valueOf(webViewLoadProgress) + "---" + String.valueOf(progress));
+                if (progress == 0) {
+                    progressLayout.setVisibility(View.VISIBLE);
+                }
                 if (progress == 100 &&  webViewLoadProgress != 100) {
                     sendMsg(context, webView);
+                    progressLayout.setVisibility(View.GONE);
                 }
                 if (webViewLoadProgress != progress) {
                     webViewLoadProgress = progress;
