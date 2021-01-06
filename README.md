@@ -95,6 +95,83 @@
   2. 监听事件
   3. 调用JS函数
   ```
+  
+- RN的调试是只有一个client从Server获取数据　Android是一个完成的APK包.
 
 
-- RN的调试是只有一个client从Server获取数据　Android是一个完成的APK包
+
+
+.
+├── app
+│   ├── build.gradle
+│   ├── libs
+│   ├── proguard-rules.pro
+│   ├── release
+│   │   ├── output-metadata.json
+│   │   └── webview_study-0.0.1_2021-01-05.apk
+│   └── src
+│       └── main
+│           ├── AndroidManifest.xml
+│           ├── assets
+│           │   └── web
+│           │       ├── css
+│           │       │   ├── comm.css
+│           │       │   ├── detail.css
+│           │       │   └── index.css
+│           │       ├── html
+│           │       │   └── detail.html
+│           │       ├── img
+│           │       ├── index.html
+│           │       └── js
+│           │           └── index.js
+│           ├── java
+│           │   └── com
+│           │       └── study
+│           │           └── android_wv
+│           │               ├── BatteryChangeReceiver.java
+│           │               ├── Jsinterface.java
+│           │               ├── MainActivity.java
+│           │               └── ViewDetailActivity.java
+│           └── res
+│               ├── drawable
+│               │   └── ic_launcher_background.xml
+│               ├── drawable-v24
+│               │   └── ic_launcher_foreground.xml
+│               ├── layout
+│               │   ├── activity_main.xml
+│               │   └── view_detail.xml
+│               ├── mipmap-anydpi-v26
+│               │   ├── ic_launcher_round.xml
+│               │   └── ic_launcher.xml
+│               ├── mipmap-hdpi
+│               │   ├── ic_launcher.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-mdpi
+│               │   ├── ic_launcher.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-xhdpi
+│               │   ├── ic_launcher.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-xxhdpi
+│               │   ├── ic_launcher.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-xxxhdpi
+│               │   ├── ic_launcher.png
+│               │   └── ic_launcher_round.png
+│               ├── values
+│               │   ├── colors.xml
+│               │   ├── strings.xml
+│               │   └── themes.xml
+│               └── values-night
+│                   └── themes.xml
+├── build.gradle
+├── CEF.md
+├── gradle.properties
+├── gradlew
+├── gradlew.bat
+├── local.properties
+├── README.md
+├── settings.gradle
+└── version.json
+
+27 directories, 44 files
