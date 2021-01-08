@@ -284,14 +284,13 @@ public class MainActivity extends AppCompatActivity implements BatteryChangeRece
                 schemes.put("https");
                 schemes.put("http");
                 schemes.put("file");
-                return  true;
-//                if(Arrays.asList(schemes).contains(scheme)) {
-//                    return false;
-//                } else {
-//                    Log.d("webview", "看看是什么URL:" + scheme + url_list[1]);
-////                    https://boxer.baidu.com/scheme?source=1023751x&channel=1023764q&p1=1023764q&p2=844b&p3=1023751x&p4={%22browserid%22:%2224%22,%22baiduid%22:%228CD66C1D09B409090F31019DFB436247%22}&tokenData=%257B%2522activity_id%2522%253A227%252C%2522url%2522%253A%2522f157imj5AtTRFONWqSgD8Rj1Qyrjs0B2%252Fpages%252Fhfiveservicesearchmiddlepage%252Findex%252F%253Ftype%253D1%2526province_name%253D%2525E5%25258C%252597%2525E4%2525BA%2525AC%2525E5%2525B8%252582%2526rfrom%253D1023751x%2526rchannel%253D1023764q%2526ivk_p2%253D844b%2522%257D
-//                    return true;
-//                }
+                if(Arrays.asList(schemes).contains(scheme)) {
+                    return true;
+                } else {
+                    Log.d("webview", "看看是什么URL:" + scheme + url_list[1]);
+//                    https://boxer.baidu.com/scheme?source=1023751x&channel=1023764q&p1=1023764q&p2=844b&p3=1023751x&p4={%22browserid%22:%2224%22,%22baiduid%22:%228CD66C1D09B409090F31019DFB436247%22}&tokenData=%257B%2522activity_id%2522%253A227%252C%2522url%2522%253A%2522f157imj5AtTRFONWqSgD8Rj1Qyrjs0B2%252Fpages%252Fhfiveservicesearchmiddlepage%252Findex%252F%253Ftype%253D1%2526province_name%253D%2525E5%25258C%252597%2525E4%2525BA%2525AC%2525E5%2525B8%252582%2526rfrom%253D1023751x%2526rchannel%253D1023764q%2526ivk_p2%253D844b%2522%257D
+                    return false;
+                }
             }
 
             @Override // SSL证书错误
