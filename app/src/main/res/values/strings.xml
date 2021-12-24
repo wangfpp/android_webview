@@ -4,4 +4,5 @@
     <string name="back">返回</string>
     <string name="play">播放</string>
     <string name="detail">视频播放</string>
+    <string name="change_view">切换webview</string>
 </resources>
